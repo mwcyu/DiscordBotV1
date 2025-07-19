@@ -1,0 +1,5 @@
+{
+  "watch": ["commands", "events", "utils", "index.js"],
+  "ext": "js json",
+  "delay": "250"
+}

@@ -1,0 +1,31 @@
+{
+  "name": "discordbotv1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "deploy": "node deploy-commands.js",
+    "dev": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mwcyu/DiscordBotV1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mwcyu/DiscordBotV1/issues"
+  },
+  "homepage": "https://github.com/mwcyu/DiscordBotV1#readme",
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "discord.js": "^14.21.0",
+    "dotenv": "^17.2.0",
+    "mongodb": "^6.17.0",
+    "mongoose": "^8.16.4",
+    "nodemon": "^3.1.10"
+  }
+}
