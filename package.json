@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "deploy": "node deploy-commands.js",
-    "dev": "nodemon",
+    "dev": "nodemon --watch commands --watch events --ext js,json --exec \"node deploy-commands.js && node index.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

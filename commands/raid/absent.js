@@ -2,19 +2,27 @@ const {
   SlashCommandBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
+  EmbedBuilder,
 } = require("discord.js");
 const { upcomingRaidDates, label } = require("../../utils/raidDates");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("absence")
-    .setDescription("Tell the bot you will miss a raid day"),
-
+    .setDescription("Add an Absence")
+    .addUserOption((option) =>
+      option
+        .setName("user")
+        .setDescription("The user to mark absent (optional)")
+        .setRequired(false)
+    ),
   async execute(interaction) {
     const dates = upcomingRaidDates(4); // this + next 3 weeks
+
+    const actionRow = new ActionRowBuilder();
     const menu = new StringSelectMenuBuilder()
       .setCustomId("absence-select")
-      .setPlaceholder("Pick the raid you will miss")
+      .setPlaceholder("Which Date?")
       .addOptions(
         dates.map((d) => ({
           label: label(d),
@@ -22,10 +30,15 @@ module.exports = {
         }))
       );
 
+    actionRow.addComponents(menu);
+
+    const embed = new EmbedBuilder()
+      .setTitle("Mark An Absence")
+      .setDescription("Select the raid date for the absence.")
+      .setColor(0xff6b6b);
     await interaction.reply({
-      content: "Which raid will you miss?",
-      components: [new ActionRowBuilder().addComponents(menu)],
-      flags: 64, // ephemeral
+      embeds: [embed],
+      components: [actionRow],
     });
   },
 };

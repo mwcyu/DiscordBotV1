@@ -24,20 +24,18 @@ module.exports = {
       interaction.options.getString("number_of_weeks")
     );
 
-    const absences = await Promise.all(
-      dates.map((d) => Absence.find({ raidDate: d }).lean().exec())
+    // Get all absences for the dates concurrently, then filter only dates with absences
+    const absenceResults = await Promise.all(
+      dates.map(async (date) => {
+        const absences = await Absence.find({ raidDate: date }).lean().exec();
+        return { date, absences };
+      })
     );
 
     // Filter to only include dates with absences
-    const datesWithAbsences = [];
-    dates.forEach((date, index) => {
-      if (absences[index].length > 0) {
-        datesWithAbsences.push({
-          date: date,
-          absences: absences[index],
-        });
-      }
-    });
+    const datesWithAbsences = absenceResults.filter(
+      (result) => result.absences.length > 0
+    );
 
     const embed = new EmbedBuilder()
       .setTitle("Upcoming Absences")
