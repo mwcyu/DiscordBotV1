@@ -10,7 +10,7 @@ module.exports = {
       option
         .setName("number_of_weeks")
         .setDescription("Number of weeks to check absences for")
-        .setRequired(true)
+        .setRequired(false)
         .addChoices(
           ...Array.from({ length: 8 }, (_, i) => ({
             name: `${i + 1}`,
@@ -21,7 +21,7 @@ module.exports = {
 
   async execute(interaction) {
     const dates = upcomingRaidDates(
-      interaction.options.getString("number_of_weeks")
+      interaction.options.getString("number_of_weeks") || "10"
     );
 
     // Get all absences for the dates concurrently, then filter only dates with absences
