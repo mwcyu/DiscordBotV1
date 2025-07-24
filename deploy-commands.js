@@ -43,9 +43,9 @@ const rest = new REST().setToken(token);
     );
 
     // wipe ALL guild slash commands
-    // await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
-    //   body: [],
-    // });
+    await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
+      body: [],
+    });
 
     const data = await rest.put(Routes.applicationCommands(clientId), {
       body: commands,
