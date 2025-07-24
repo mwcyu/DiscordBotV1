@@ -18,7 +18,11 @@ module.exports = {
 
       try {
         await Absence.updateOne(
-          { userId: interaction.user.id, raidDate },
+          {
+            guildId: interaction.guildId,
+            userId: interaction.user.id,
+            raidDate,
+          },
           {
             userId: interaction.user.id,
             username: interaction.user.username,

@@ -15,7 +15,12 @@ module.exports = {
     if (interaction.customId.startsWith("absence-remove-select-")) {
       const userId = interaction.user.id;
       const selectedDate = interaction.values[0];
-      console.log(selectedDate);
+      console.log(
+        interaction.guildId,
+        interaction.guild.id,
+        userId,
+        selectedDate
+      );
 
       try {
         let deleteQuery = {

@@ -35,6 +35,6 @@ const absenceSchema = new mongoose.Schema(
 );
 
 // Compound index to prevent duplicate absences for the same user on the same raid date
-absenceSchema.index({ userId: 1, raidDate: 1 }, { unique: true });
+absenceSchema.index({ guildId: 1, userId: 1, raidDate: 1 }, { unique: true });
 
 module.exports = mongoose.model("Absence", absenceSchema);
