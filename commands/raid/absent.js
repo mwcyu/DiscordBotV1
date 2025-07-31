@@ -3,6 +3,8 @@ const {
   ActionRowBuilder,
   StringSelectMenuBuilder,
   EmbedBuilder,
+  Message,
+  MessageFlags,
 } = require("discord.js");
 const { upcomingRaidDates, label } = require("../../utils/raidDates");
 
@@ -21,7 +23,11 @@ module.exports = {
 
     const actionRow = new ActionRowBuilder();
     const menu = new StringSelectMenuBuilder()
-      .setCustomId("absence-select")
+      .setCustomId(
+        `absence-select-${
+          interaction.options.getUser("user")?.id || interaction.user.id
+        }`
+      )
       .setPlaceholder("Which Date?")
       .addOptions(
         dates.map((d) => ({
@@ -39,6 +45,7 @@ module.exports = {
     await interaction.reply({
       embeds: [embed],
       components: [actionRow],
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

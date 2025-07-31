@@ -15,12 +15,6 @@ module.exports = {
     if (interaction.customId.startsWith("absence-remove-select-")) {
       const userId = interaction.user.id;
       const selectedDate = interaction.values[0];
-      console.log(
-        interaction.guildId,
-        interaction.guild.id,
-        userId,
-        selectedDate
-      );
 
       try {
         let deleteQuery = {
@@ -65,6 +59,10 @@ module.exports = {
           content: `✅ Successfully removed ${user.username}'s absence for **${dateText}**. (${result.deletedCount} record(s) removed)`,
           components: [],
           embeds: [],
+        });
+
+        await interaction.channel.send({
+          content: `✅ ${user.username}'s absence has been removed for **${dateText}**.`,
         });
       } catch (error) {
         console.error("Error removing absence:", error);

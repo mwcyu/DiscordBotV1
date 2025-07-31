@@ -27,7 +27,12 @@ module.exports = {
     // Get all absences for the dates concurrently, then filter only dates with absences
     const absenceResults = await Promise.all(
       dates.map(async (date) => {
-        const absences = await Absence.find({ raidDate: date }).lean().exec();
+        const absences = await Absence.find({
+          raidDate: date,
+          guildId: interaction.guild.id,
+        })
+          .lean()
+          .exec();
         return { date, absences };
       })
     );

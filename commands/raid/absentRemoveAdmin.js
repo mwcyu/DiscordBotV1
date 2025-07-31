@@ -5,6 +5,7 @@ const {
   EmbedBuilder,
   PermissionFlagsBits,
   UserSelectMenuBuilder,
+  MessageFlags,
 } = require("discord.js");
 const Absence = require("../../models/Absence");
 const {
@@ -74,6 +75,7 @@ module.exports = {
     await interaction.reply({
       embeds: [embed],
       components: [actionRow],
+      flags: MessageFlags.Ephemeral,
     });
   },
 };
