@@ -2,6 +2,7 @@ const {
   Events,
   ActionRowBuilder,
   StringSelectMenuBuilder,
+  MessageFlags,
 } = require("discord.js");
 const Absence = require("../models/Absence");
 const { label, upcomingRaidDates } = require("../utils/raidDates");
@@ -23,7 +24,7 @@ module.exports = {
         });
       }
       const selectedDate = interaction.values[0];
-      console.log(selectedDate);
+      // console.log(selectedDate);
 
       try {
         let deleteQuery = {
