@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const express = require("express");
 const {
   Client,
   Collection,
@@ -31,6 +32,41 @@ if (!mongoUri) {
 }
 
 async function startBot() {
+  // Create Express app for Azure health checks
+  const app = express();
+  
+  // Middleware for JSON parsing
+  app.use(express.json());
+  
+  // Health check endpoint
+  app.get('/health', (req, res) => {
+    res.json({ 
+      status: 'healthy', 
+      bot: 'running',
+      timestamp: new Date().toISOString()
+    });
+  });
+  
+  // Root endpoint
+  app.get('/', (req, res) => {
+    res.send('Discord Bot is running!');
+  });
+  
+  // Bot status endpoint
+  app.get('/status', (req, res) => {
+    res.json({
+      botStatus: 'online',
+      uptime: process.uptime(),
+      memoryUsage: process.memoryUsage(),
+      nodeVersion: process.version
+    });
+  });
+
+  const port = process.env.PORT || 8080;
+  app.listen(port, () => {
+    console.log(`Express server running on port ${port}`);
+  });
+
   // Create a new client instance
   const client = new Client({
     intents: [

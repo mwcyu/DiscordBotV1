@@ -32,6 +32,8 @@ jobs:
         with:
           name: node-app
           path: .
+        env:
+          exclude: ".env"
 
   deploy:
     runs-on: ubuntu-latest
