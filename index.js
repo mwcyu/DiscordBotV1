@@ -32,33 +32,45 @@ if (!mongoUri) {
 }
 
 async function startBot() {
+  // Try to deploy commands first, but don't fail if it doesn't work
+  try {
+    console.log("Attempting to deploy commands...");
+    require("./deploy-commands.js");
+    console.log("Commands deployed successfully");
+  } catch (error) {
+    console.warn(
+      "Command deployment failed, continuing without deploying commands:",
+      error.message
+    );
+  }
+
   // Create Express app for Azure health checks
   const app = express();
-  
+
   // Middleware for JSON parsing
   app.use(express.json());
-  
+
   // Health check endpoint
-  app.get('/health', (req, res) => {
-    res.json({ 
-      status: 'healthy', 
-      bot: 'running',
-      timestamp: new Date().toISOString()
+  app.get("/health", (req, res) => {
+    res.json({
+      status: "healthy",
+      bot: "running",
+      timestamp: new Date().toISOString(),
     });
   });
-  
+
   // Root endpoint
-  app.get('/', (req, res) => {
-    res.send('Discord Bot is running!');
+  app.get("/", (req, res) => {
+    res.send("Discord Bot is running!");
   });
-  
+
   // Bot status endpoint
-  app.get('/status', (req, res) => {
+  app.get("/status", (req, res) => {
     res.json({
-      botStatus: 'online',
+      botStatus: "online",
       uptime: process.uptime(),
       memoryUsage: process.memoryUsage(),
-      nodeVersion: process.version
+      nodeVersion: process.version,
     });
   });
 
