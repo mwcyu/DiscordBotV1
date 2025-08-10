@@ -72,7 +72,7 @@ async function startBot() {
     intents: [
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.MessageContent,
+      // GatewayIntentBits.MessageContent, // Temporarily disabled - enable in Discord Developer Portal first
     ],
   });
 
