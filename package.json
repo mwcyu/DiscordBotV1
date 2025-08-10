@@ -27,7 +27,6 @@
   "bugs": {
     "url": "https://github.com/mwcyu/DiscordBotV1/issues"
   },
-  "homepage": "https://github.com/mwcyu/DiscordBotV1#readme",
   "dependencies": {
     "date-fns": "^4.1.0",
     "discord.js": "^14.21.0",
