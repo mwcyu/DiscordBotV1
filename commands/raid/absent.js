@@ -10,7 +10,7 @@ const { upcomingRaidDates, label } = require("../../utils/raidDates");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("absence")
+    .setName("absent")
     .setDescription("Add an Absence")
     .addUserOption((option) =>
       option

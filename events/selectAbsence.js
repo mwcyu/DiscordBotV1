@@ -52,7 +52,7 @@ module.exports = {
         });
 
         await interaction.channel.send({
-          content: `✅ ${user.username} are now marked absent for **${label(
+          content: `✅ ${user.username} is now marked absent for **${label(
             raidDate
           )}**.`,
           components: [],

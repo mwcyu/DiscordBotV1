@@ -48,9 +48,7 @@ module.exports = {
 
     if (datesWithAbsences.length === 0) {
       embed.setDescription(
-        `🎉 No absences for the next ${interaction.options.getString(
-          "number_of_weeks"
-        )} raids! Everyone is available!`
+        `🎉 No absences for the next ${dates.length} raids! Everyone is available!`
       );
     } else {
       embed.addFields(
