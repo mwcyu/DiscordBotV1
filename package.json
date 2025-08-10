@@ -7,7 +7,7 @@
     "node": "22.x"
   },
   "scripts": {
-    "start": "node deploy-commands.js && node index.js",
+    "start": "node index.js",
     "deploy": "node deploy-commands.js",
     "deploy-and-start": "node deploy-commands.js && node index.js",
     "dev": "nodemon --watch commands --watch events --ext js,json --exec \"node dev-deploy-commands.js && node index.js\"",
