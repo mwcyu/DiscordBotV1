@@ -77,7 +77,25 @@ npm run dev
 - `/absent` - Mark an absence for raid dates
 - `/absentlist` - View absence list
 - `/absentremove` - Remove your own absence
-- `/absentremoveadmin` - Admin command to remove any absence
+- `/adminabsentremove` - Admin command to remove any absence
+- `/raidconfig` - Configure raid role settings (Admin only)
+  - `setrole` - Set which role can be managed by raid commands
+  - `show` - Display current configuration
+  - `clear` - Clear role configuration (allow all users)
+
+## Role-Based Filtering
+
+Server administrators can configure the bot to only manage raid absences for users with a specific role:
+
+1. Use `/raidconfig setrole @RoleName` to set the raid role
+2. Only users with this role will:
+   - Be able to use raid commands
+   - Appear in absence lists and dropdowns
+   - Have their absences managed by the bot
+3. Use `/raidconfig clear` to remove role restrictions
+4. Use `/raidconfig show` to view current settings
+
+This is useful for servers where only certain members participate in raids.
 
 ## Troubleshooting
 
