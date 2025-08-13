@@ -24,21 +24,23 @@ async function getGuildRaidRole(guildId) {
 async function filterMembersByRaidRole(guild, members) {
   try {
     const raidRoleId = await getGuildRaidRole(guild.id);
-    
+
     // If no role is configured, return all members
     if (!raidRoleId) {
       return members;
     }
-    
+
     // Check if the role still exists
     const raidRole = guild.roles.cache.get(raidRoleId);
     if (!raidRole) {
-      console.warn(`Configured raid role ${raidRoleId} not found in guild ${guild.id}`);
+      console.warn(
+        `Configured raid role ${raidRoleId} not found in guild ${guild.id}`
+      );
       return members;
     }
-    
+
     // Filter members who have the raid role
-    return members.filter(member => member.roles.cache.has(raidRoleId));
+    return members.filter((member) => member.roles.cache.has(raidRoleId));
   } catch (error) {
     console.error("Error filtering members by raid role:", error);
     return members; // Return all members on error
@@ -57,7 +59,7 @@ async function getRaidEligibleMembers(guild, fetchAll = true) {
     if (fetchAll && guild.memberCount !== guild.members.cache.size) {
       await guild.members.fetch();
     }
-    
+
     return await filterMembersByRaidRole(guild, guild.members.cache);
   } catch (error) {
     console.error("Error getting raid eligible members:", error);
@@ -73,12 +75,12 @@ async function getRaidEligibleMembers(guild, fetchAll = true) {
 async function isUserRaidEligible(member) {
   try {
     const raidRoleId = await getGuildRaidRole(member.guild.id);
-    
+
     // If no role is configured, all users are eligible
     if (!raidRoleId) {
       return true;
     }
-    
+
     // Check if user has the raid role
     return member.roles.cache.has(raidRoleId);
   } catch (error) {
@@ -95,16 +97,16 @@ async function isUserRaidEligible(member) {
 async function getRaidRoleDisplayText(guild) {
   try {
     const guildConfig = await GuildConfig.findOne({ guildId: guild.id });
-    
+
     if (!guildConfig || !guildConfig.raidRoleId) {
       return "All server members";
     }
-    
+
     const role = guild.roles.cache.get(guildConfig.raidRoleId);
     if (!role) {
       return `⚠️ Configured role not found (${guildConfig.raidRoleName})`;
     }
-    
+
     return `Members with role: ${role.name}`;
   } catch (error) {
     console.error("Error getting raid role display text:", error);

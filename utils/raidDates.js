@@ -27,7 +27,9 @@ function label(date) {
 
 async function userAbsenceDates(targetUser, interaction) {
   // First check if the user is raid eligible
-  const targetMember = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
+  const targetMember = await interaction.guild.members
+    .fetch(targetUser.id)
+    .catch(() => null);
   if (!targetMember) {
     return []; // User not in guild, no absences
   }

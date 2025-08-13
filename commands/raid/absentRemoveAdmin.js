@@ -13,7 +13,10 @@ const {
   label,
   userAbsenceDates,
 } = require("../../utils/raidDates");
-const { isUserRaidEligible, getRaidRoleDisplayText } = require("../../utils/roleFilter");
+const {
+  isUserRaidEligible,
+  getRaidRoleDisplayText,
+} = require("../../utils/roleFilter");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -33,9 +36,11 @@ module.exports = {
     ) {
       const embed = new EmbedBuilder()
         .setTitle("❌ Permission Denied")
-        .setDescription("You don't have permission to remove absences for other members!")
+        .setDescription(
+          "You don't have permission to remove absences for other members!"
+        )
         .setColor(0xff0000);
-        
+
       return await interaction.reply({
         embeds: [embed],
         flags: MessageFlags.Ephemeral,
@@ -43,32 +48,40 @@ module.exports = {
     }
 
     const user = interaction.options.getUser("user");
-    const targetMember = await interaction.guild.members.fetch(user.id).catch(() => null);
-    
+    const targetMember = await interaction.guild.members
+      .fetch(user.id)
+      .catch(() => null);
+
     if (!targetMember) {
       const embed = new EmbedBuilder()
         .setTitle("❌ User Not Found")
         .setDescription("The specified user is not a member of this server.")
         .setColor(0xff0000);
-      
+
       await interaction.reply({ embeds: [embed], ephemeral: true });
       return;
     }
-    
+
     // Check if the target user is eligible for raid commands
     const isEligible = await isUserRaidEligible(targetMember);
     if (!isEligible) {
       const roleDisplayText = await getRaidRoleDisplayText(interaction.guild);
-      
+
       const embed = new EmbedBuilder()
         .setTitle("❌ User Not Eligible")
-        .setDescription(`This server is configured to only manage absences for: **${roleDisplayText}**`)
+        .setDescription(
+          `This server is configured to only manage absences for: **${roleDisplayText}**`
+        )
         .addFields(
           { name: "Target User", value: `<@${user.id}>`, inline: true },
-          { name: "Configure Roles", value: "Use `/raidconfig` to change this setting", inline: false }
+          {
+            name: "Configure Roles",
+            value: "Use `/raidconfig` to change this setting",
+            inline: false,
+          }
         )
         .setColor(0xff6b00);
-      
+
       await interaction.reply({ embeds: [embed], ephemeral: true });
       return;
     }
@@ -82,10 +95,10 @@ module.exports = {
         .setTitle("ℹ️ No Absences Found")
         .setDescription(`No absences found for ${user.username}.`)
         .setColor(0x999999);
-        
+
       return await interaction.reply({
         embeds: [embed],
-        ephemeral: true
+        ephemeral: true,
       });
     }
 

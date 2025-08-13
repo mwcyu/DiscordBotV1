@@ -1,7 +1,10 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const Absence = require("../../models/Absence");
 const { upcomingRaidDates, label } = require("../../utils/raidDates");
-const { getRaidEligibleMembers, getRaidRoleDisplayText } = require("../../utils/roleFilter");
+const {
+  getRaidEligibleMembers,
+  getRaidRoleDisplayText,
+} = require("../../utils/roleFilter");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -27,7 +30,7 @@ module.exports = {
 
     // Get raid-eligible members
     const eligibleMembers = await getRaidEligibleMembers(interaction.guild);
-    const eligibleUserIds = new Set(eligibleMembers.map(member => member.id));
+    const eligibleUserIds = new Set(eligibleMembers.map((member) => member.id));
 
     // Get all absences for the dates concurrently, then filter only dates with absences
     const absenceResults = await Promise.all(
@@ -38,12 +41,12 @@ module.exports = {
         })
           .lean()
           .exec();
-          
+
         // Filter absences to only include raid-eligible users
-        const filteredAbsences = allAbsences.filter(absence => 
+        const filteredAbsences = allAbsences.filter((absence) =>
           eligibleUserIds.has(absence.userId)
         );
-        
+
         return { date, absences: filteredAbsences };
       })
     );
@@ -64,14 +67,14 @@ module.exports = {
       embed.addFields({
         name: "🎉 No Absences Found",
         value: `No absences for the next ${dates.length} raids! Everyone is available!`,
-        inline: false
+        inline: false,
       });
     } else {
       embed.addFields(
         datesWithAbsences.map(({ date, absences }) => ({
           name: label(date),
           value: absences.map((a) => a.globalName).join(", "),
-          inline: false
+          inline: false,
         }))
       );
     }

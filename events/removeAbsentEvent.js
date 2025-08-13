@@ -18,7 +18,9 @@ module.exports = {
       const selectedDate = interaction.values[0];
 
       // Check if the user is raid eligible
-      const targetMember = await interaction.guild.members.fetch(userId).catch(() => null);
+      const targetMember = await interaction.guild.members
+        .fetch(userId)
+        .catch(() => null);
       if (!targetMember) {
         return await interaction.update({
           content: "❌ You are not a member of this server.",
@@ -30,7 +32,8 @@ module.exports = {
       const isEligible = await isUserRaidEligible(targetMember);
       if (!isEligible) {
         return await interaction.update({
-          content: "❌ You are not eligible for raid absence management in this server.",
+          content:
+            "❌ You are not eligible for raid absence management in this server.",
           components: [],
           embeds: [],
         });
