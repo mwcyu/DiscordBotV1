@@ -13,20 +13,16 @@ const {
   label,
   userAbsenceDates,
 } = require("../../utils/raidDates");
-const {
-  isUserRaidEligible,
-  getRaidRoleDisplayText,
-} = require("../../utils/roleFilter");
+const { userHasRequiredRole } = require("../../utils/roleFilter");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("adminabsentremove")
-    .setDescription("Remove an Absence (Admin Only)")
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+    .setDescription("Remove an Absence")
     .addUserOption((option) =>
       option
         .setName("user")
-        .setDescription("The user to remove absence")
+        .setDescription("The user to remove absence (optional)")
         .setRequired(true)
     ),
 
@@ -34,56 +30,28 @@ module.exports = {
     if (
       !interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)
     ) {
-      const embed = new EmbedBuilder()
-        .setTitle("❌ Permission Denied")
-        .setDescription(
-          "You don't have permission to remove absences for other members!"
-        )
-        .setColor(0xff0000);
-
       return await interaction.reply({
-        embeds: [embed],
+        content:
+          "❌ You don't have permission to remove absences for other members!",
         flags: MessageFlags.Ephemeral,
       });
     }
 
     const user = interaction.options.getUser("user");
-    const targetMember = await interaction.guild.members
-      .fetch(user.id)
-      .catch(() => null);
+    const member = await interaction.guild.members.fetch(user.id);
 
-    if (!targetMember) {
-      const embed = new EmbedBuilder()
-        .setTitle("❌ User Not Found")
-        .setDescription("The specified user is not a member of this server.")
-        .setColor(0xff0000);
+    // Check if the target user has the required role (if role filter is configured)
+    const hasRequiredRole = await userHasRequiredRole(
+      member,
+      interaction.guild.id
+    );
 
-      await interaction.reply({ embeds: [embed], ephemeral: true });
-      return;
-    }
-
-    // Check if the target user is eligible for raid commands
-    const isEligible = await isUserRaidEligible(targetMember);
-    if (!isEligible) {
-      const roleDisplayText = await getRaidRoleDisplayText(interaction.guild);
-
-      const embed = new EmbedBuilder()
-        .setTitle("❌ User Not Eligible")
-        .setDescription(
-          `This server is configured to only manage absences for: **${roleDisplayText}**`
-        )
-        .addFields(
-          { name: "Target User", value: `<@${user.id}>`, inline: true },
-          {
-            name: "Configure Roles",
-            value: "Use `/raidconfig` to change this setting",
-            inline: false,
-          }
-        )
-        .setColor(0xff6b00);
-
-      await interaction.reply({ embeds: [embed], ephemeral: true });
-      return;
+    if (!hasRequiredRole) {
+      return await interaction.reply({
+        content:
+          "❌ This user doesn't have the required role for raid management.",
+        flags: MessageFlags.Ephemeral,
+      });
     }
 
     const actionRow = new ActionRowBuilder();
@@ -91,14 +59,10 @@ module.exports = {
 
     // If no absences found, inform the user
     if (userAbsencesDates.length === 0) {
-      const embed = new EmbedBuilder()
-        .setTitle("ℹ️ No Absences Found")
-        .setDescription(`No absences found for ${user.username}.`)
-        .setColor(0x999999);
-
       return await interaction.reply({
-        embeds: [embed],
-        ephemeral: true,
+        content: `ℹ️ No absences found for ${user.username}.`,
+        components: [],
+        embeds: [],
       });
     }
 
@@ -119,7 +83,7 @@ module.exports = {
     actionRow.addComponents(menu);
 
     const embed = new EmbedBuilder()
-      .setTitle("Remove Absence (Admin)")
+      .setTitle("Remove Absence")
       .setDescription(
         `Select the raid date to remove ${user.username}'s absence.`
       )

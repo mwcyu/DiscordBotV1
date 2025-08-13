@@ -5,7 +5,6 @@ const {
 } = require("discord.js");
 const Absence = require("../models/Absence");
 const { label, upcomingRaidDates } = require("../utils/raidDates");
-const { isUserRaidEligible } = require("../utils/roleFilter");
 
 module.exports = {
   name: Events.InteractionCreate,
@@ -16,28 +15,6 @@ module.exports = {
     if (interaction.customId.startsWith("absence-remove-select-")) {
       const userId = interaction.user.id;
       const selectedDate = interaction.values[0];
-
-      // Check if the user is raid eligible
-      const targetMember = await interaction.guild.members
-        .fetch(userId)
-        .catch(() => null);
-      if (!targetMember) {
-        return await interaction.update({
-          content: "❌ You are not a member of this server.",
-          components: [],
-          embeds: [],
-        });
-      }
-
-      const isEligible = await isUserRaidEligible(targetMember);
-      if (!isEligible) {
-        return await interaction.update({
-          content:
-            "❌ You are not eligible for raid absence management in this server.",
-          components: [],
-          embeds: [],
-        });
-      }
 
       try {
         let deleteQuery = {

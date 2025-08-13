@@ -8,7 +8,6 @@ const {
   compareDesc,
 } = require("date-fns");
 const Absence = require("../models/Absence");
-const { isUserRaidEligible } = require("./roleFilter");
 
 function upcomingRaidDates(weeks = 4) {
   const now = new Date();
@@ -26,19 +25,6 @@ function label(date) {
 }
 
 async function userAbsenceDates(targetUser, interaction) {
-  // First check if the user is raid eligible
-  const targetMember = await interaction.guild.members
-    .fetch(targetUser.id)
-    .catch(() => null);
-  if (!targetMember) {
-    return []; // User not in guild, no absences
-  }
-
-  const isEligible = await isUserRaidEligible(targetMember);
-  if (!isEligible) {
-    return []; // User not eligible, no absences to show
-  }
-
   const userAbsences = await Absence.find({
     userId: targetUser.id,
     guildId: interaction.guild.id,

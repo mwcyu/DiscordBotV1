@@ -1,123 +1,69 @@
 const GuildConfig = require("../models/GuildConfig");
 
 /**
- * Get the configured raid role for a guild
+ * Get the configured role ID for a guild
  * @param {string} guildId - The guild ID
  * @returns {Promise<string|null>} - The role ID or null if not configured
  */
-async function getGuildRaidRole(guildId) {
+async function getGuildRoleFilter(guildId) {
   try {
-    const guildConfig = await GuildConfig.findOne({ guildId });
-    return guildConfig?.raidRoleId || null;
+    const config = await GuildConfig.findOne({ guildId });
+    return config ? config.guildRole : null;
   } catch (error) {
-    console.error("Error fetching guild raid role:", error);
+    console.error("Error fetching guild config:", error);
     return null;
   }
 }
 
 /**
- * Filter guild members based on the configured raid role
- * @param {Guild} guild - The Discord guild
- * @param {Collection} members - Collection of guild members
- * @returns {Promise<Collection>} - Filtered collection of members
- */
-async function filterMembersByRaidRole(guild, members) {
-  try {
-    const raidRoleId = await getGuildRaidRole(guild.id);
-
-    // If no role is configured, return all members
-    if (!raidRoleId) {
-      return members;
-    }
-
-    // Check if the role still exists
-    const raidRole = guild.roles.cache.get(raidRoleId);
-    if (!raidRole) {
-      console.warn(
-        `Configured raid role ${raidRoleId} not found in guild ${guild.id}`
-      );
-      return members;
-    }
-
-    // Filter members who have the raid role
-    return members.filter((member) => member.roles.cache.has(raidRoleId));
-  } catch (error) {
-    console.error("Error filtering members by raid role:", error);
-    return members; // Return all members on error
-  }
-}
-
-/**
- * Get guild members with the raid role, or all members if no role is configured
- * @param {Guild} guild - The Discord guild
- * @param {boolean} fetchAll - Whether to fetch all members if not cached
- * @returns {Promise<Collection>} - Collection of filtered members
- */
-async function getRaidEligibleMembers(guild, fetchAll = true) {
-  try {
-    // Fetch all members if requested and not cached
-    if (fetchAll && guild.memberCount !== guild.members.cache.size) {
-      await guild.members.fetch();
-    }
-
-    return await filterMembersByRaidRole(guild, guild.members.cache);
-  } catch (error) {
-    console.error("Error getting raid eligible members:", error);
-    return guild.members.cache; // Return cached members on error
-  }
-}
-
-/**
- * Check if a user has the raid role (or if no role is configured)
+ * Check if a user has the required role for the guild
  * @param {GuildMember} member - The guild member to check
- * @returns {Promise<boolean>} - Whether the user is raid eligible
+ * @param {string} guildId - The guild ID
+ * @returns {Promise<boolean>} - True if user has role or no filter is set
  */
-async function isUserRaidEligible(member) {
+async function userHasRequiredRole(member, guildId) {
   try {
-    const raidRoleId = await getGuildRaidRole(member.guild.id);
+    const requiredRoleId = await getGuildRoleFilter(guildId);
 
-    // If no role is configured, all users are eligible
-    if (!raidRoleId) {
+    // If no role filter is configured, allow all users
+    if (!requiredRoleId) {
       return true;
     }
 
-    // Check if user has the raid role
-    return member.roles.cache.has(raidRoleId);
+    // Check if user has the required role
+    return member.roles.cache.has(requiredRoleId);
   } catch (error) {
-    console.error("Error checking if user is raid eligible:", error);
-    return true; // Allow access on error
+    console.error("Error checking user role:", error);
+    return false;
   }
 }
 
 /**
- * Get display text for the current raid role configuration
+ * Filter guild members based on the configured role
  * @param {Guild} guild - The Discord guild
- * @returns {Promise<string>} - Display text for the configuration
+ * @returns {Promise<Collection<string, GuildMember>>} - Filtered members
  */
-async function getRaidRoleDisplayText(guild) {
+async function getFilteredMembers(guild) {
   try {
-    const guildConfig = await GuildConfig.findOne({ guildId: guild.id });
+    const requiredRoleId = await getGuildRoleFilter(guild.id);
 
-    if (!guildConfig || !guildConfig.raidRoleId) {
-      return "All server members";
+    // If no role filter is configured, return all members
+    if (!requiredRoleId) {
+      return guild.members.cache;
     }
 
-    const role = guild.roles.cache.get(guildConfig.raidRoleId);
-    if (!role) {
-      return `⚠️ Configured role not found (${guildConfig.raidRoleName})`;
-    }
-
-    return `Members with role: ${role.name}`;
+    // Filter members by role
+    return guild.members.cache.filter((member) =>
+      member.roles.cache.has(requiredRoleId)
+    );
   } catch (error) {
-    console.error("Error getting raid role display text:", error);
-    return "All server members";
+    console.error("Error filtering members:", error);
+    return guild.members.cache;
   }
 }
 
 module.exports = {
-  getGuildRaidRole,
-  filterMembersByRaidRole,
-  getRaidEligibleMembers,
-  isUserRaidEligible,
-  getRaidRoleDisplayText,
+  getGuildRoleFilter,
+  userHasRequiredRole,
+  getFilteredMembers,
 };

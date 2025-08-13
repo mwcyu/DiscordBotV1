@@ -5,7 +5,6 @@ const {
 } = require("discord.js");
 const Absence = require("../models/Absence");
 const { label, upcomingRaidDates } = require("../utils/raidDates");
-const { isUserRaidEligible } = require("../utils/roleFilter");
 
 module.exports = {
   name: Events.InteractionCreate,
@@ -25,30 +24,8 @@ module.exports = {
           embeds: [],
         });
       }
-
-      // Check if the user is raid eligible
-      const targetMember = await interaction.guild.members
-        .fetch(userId)
-        .catch(() => null);
-      if (!targetMember) {
-        return await interaction.update({
-          content: "❌ User is not a member of this server.",
-          components: [],
-          embeds: [],
-        });
-      }
-
-      const isEligible = await isUserRaidEligible(targetMember);
-      if (!isEligible) {
-        return await interaction.update({
-          content:
-            "❌ This user is not eligible for raid absence management in this server.",
-          components: [],
-          embeds: [],
-        });
-      }
-
       const selectedDate = interaction.values[0];
+
       const raidDate = new Date(selectedDate);
 
       try {

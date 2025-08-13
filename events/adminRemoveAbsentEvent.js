@@ -6,7 +6,6 @@ const {
 } = require("discord.js");
 const Absence = require("../models/Absence");
 const { label, upcomingRaidDates } = require("../utils/raidDates");
-const { isUserRaidEligible } = require("../utils/roleFilter");
 
 module.exports = {
   name: Events.InteractionCreate,
@@ -24,30 +23,8 @@ module.exports = {
           embeds: [],
         });
       }
-
-      // Check if the target user is raid eligible
-      const targetMember = await interaction.guild.members
-        .fetch(userId)
-        .catch(() => null);
-      if (!targetMember) {
-        return await interaction.update({
-          content: "❌ Target user is not a member of this server.",
-          components: [],
-          embeds: [],
-        });
-      }
-
-      const isEligible = await isUserRaidEligible(targetMember);
-      if (!isEligible) {
-        return await interaction.update({
-          content:
-            "❌ Target user is not eligible for raid absence management in this server.",
-          components: [],
-          embeds: [],
-        });
-      }
-
       const selectedDate = interaction.values[0];
+      // console.log(selectedDate);
 
       try {
         let deleteQuery = {
@@ -92,10 +69,6 @@ module.exports = {
           content: `✅ Successfully removed ${user.username}'s absence for **${dateText}**. (${result.deletedCount} record(s) removed)`,
           components: [],
           embeds: [],
-        });
-
-        await interaction.channel.send({
-          content: `✅ Admin removed ${user.username}'s absence for **${dateText}**.`,
         });
       } catch (error) {
         console.error("Error removing absence:", error);
