@@ -70,7 +70,7 @@ async function startBot() {
     });
   });
 
-  const port = process.env.PORT || 8080;
+  const port = process.env.PORT || 8079;
   app.listen(port, () => {
     console.log(`Express server running on port ${port}`);
   });

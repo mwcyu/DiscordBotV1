@@ -14,11 +14,11 @@ RUN npm ci --only=production
 COPY . .
 
 # Expose the port the app runs on
-EXPOSE 8080
+EXPOSE 8079
 
 # Define environment variables with default values
 ENV NODE_ENV=production
-ENV PORT=8080
+ENV PORT=8079
 
 # Start the application
 CMD ["npm", "start"]
