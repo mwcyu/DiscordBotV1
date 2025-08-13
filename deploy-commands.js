@@ -3,7 +3,8 @@ require("dotenv").config();
 
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
-const guildId = process.env.GUILD_ID;
+// guildId is only needed for development/testing
+// const guildId = process.env.GUILD_ID;
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -42,11 +43,7 @@ const rest = new REST().setToken(token);
       `Started refreshing ${commands.length} application (/) commands.`
     );
 
-    // wipe ALL guild slash commands
-    await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
-      body: [],
-    });
-
+    // Deploy commands globally (available to all servers)
     const data = await rest.put(Routes.applicationCommands(clientId), {
       body: commands,
     });

@@ -7,13 +7,21 @@ require("dotenv").config();
 // Read environment variables
 const token = process.env.DISCORD_TOKEN;
 const mongoUri = process.env.MONGO_URI;
+const clientId = process.env.CLIENT_ID;
 
 if (!token) {
   console.error("Error: DISCORD_TOKEN not found in environment variables.");
+  console.error("Please set your Discord bot token in the .env file.");
+  process.exit(1);
+}
+if (!clientId) {
+  console.error("Error: CLIENT_ID not found in environment variables.");
+  console.error("Please set your Discord application ID in the .env file.");
   process.exit(1);
 }
 if (!mongoUri) {
   console.error("Error: MONGO_URI not found in environment variables.");
+  console.error("Please set your MongoDB connection string in the .env file.");
   process.exit(1);
 }
 
