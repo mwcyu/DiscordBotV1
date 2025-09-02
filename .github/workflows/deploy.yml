@@ -1,0 +1,45 @@
+name: Deploy to VM
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    env:
+      DEPLOY_ROOT: /docker/discordbots
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute deploy dir
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          echo "DEPLOY_DIR=$DEPLOY_ROOT/$REPO_NAME" >> $GITHUB_ENV
+
+      - name: Ensure deploy dir exists
+        run: mkdir -p "$DEPLOY_DIR"
+
+      - name: Sync repo → $DEPLOY_DIR (keep .env)
+        run: |
+          if command -v rsync >/dev/null 2>&1; then
+            rsync -a --delete --exclude '.env' ./ "$DEPLOY_DIR"/
+          else
+            [ -f "$DEPLOY_DIR/.env" ] && cp "$DEPLOY_DIR/.env" /tmp/.env.keep || true
+            rm -rf "$DEPLOY_DIR"/*
+            cp -a ./ "$DEPLOY_DIR"/
+            [ -f /tmp/.env.keep ] && mv /tmp/.env.keep "$DEPLOY_DIR/.env" || true
+          fi
+
+      - name: Build & restart
+        working-directory: ${{ env.DEPLOY_DIR }}
+        run: |
+          docker compose build --pull
+          docker compose up -d --remove-orphans
+          docker image prune -f --filter "until=168h" || true
+
+      - name: Tail logs
+        working-directory: ${{ env.DEPLOY_DIR }}
+        run: docker compose logs --tail=80
