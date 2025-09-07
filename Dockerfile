@@ -2,10 +2,7 @@
 FROM node:22.6.0-alpine AS build   
 WORKDIR /app
 COPY package*.json ./
-
-# add a quick sanity print + robust ci flags
-RUN node -v && npm -v \
-    && npm ci --foreground-scripts --no-audit --no-fund
+RUN npm ci --no-audit --no-fund
 
 COPY . .
 # RUN npm run build  # (uncomment if you actually have a build step)
