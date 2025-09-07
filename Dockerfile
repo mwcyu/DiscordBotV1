@@ -17,7 +17,7 @@ USER bot
 
 COPY --from=build --chown=bot:bot /app/package*.json ./
 COPY --from=build --chown=bot:bot /app/node_modules ./node_modules
-COPY --from=build --chown=bot:bot /app/src ./src
+COPY --from=build --chown=bot:bot /app/index.js ./
 EXPOSE 8079
 ENV NODE_ENV=production PORT=8079
 CMD ["npm", "start"]
