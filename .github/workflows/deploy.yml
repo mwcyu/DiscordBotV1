@@ -1,45 +1,40 @@
-name: Deploy to VM
+# .github/workflows/deploy.yml
 
+name: CI/CD for Discord Bot
+
+# This workflow runs on any push to the 'main' branch
 on:
   push:
-    branches: [main]
-  workflow_dispatch: {}
+    branches: ["main"]
 
 jobs:
   deploy:
+    # This job runs on our self-hosted runner
     runs-on: self-hosted
-    env:
-      DEPLOY_ROOT: /docker/discordbots
+
     steps:
-      - name: Checkout
+      - name: 1. Check out the repository
         uses: actions/checkout@v4
 
-      - name: Compute deploy dir
+      - name: 2. Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 3. Build the Docker image
         run: |
-          REPO_NAME="${GITHUB_REPOSITORY##*/}"
-          echo "DEPLOY_DIR=$DEPLOY_ROOT/$REPO_NAME" >> $GITHUB_ENV
+          docker build -t mellowhrbot-image:${{ github.sha }} .
+          docker tag mellowhrbot-image:${{ github.sha }} mellowhrbot-image:latest
 
-      - name: Ensure deploy dir exists
-        run: mkdir -p "$DEPLOY_DIR"
-
-      - name: Sync repo → $DEPLOY_DIR (keep .env)
+      - name: 4. Deploy the new container
         run: |
-          if command -v rsync >/dev/null 2>&1; then
-            rsync -a --delete --exclude '.env' ./ "$DEPLOY_DIR"/
-          else
-            [ -f "$DEPLOY_DIR/.env" ] && cp "$DEPLOY_DIR/.env" /tmp/.env.keep || true
-            rm -rf "$DEPLOY_DIR"/*
-            cp -a ./ "$DEPLOY_DIR"/
-            [ -f /tmp/.env.keep ] && mv /tmp/.env.keep "$DEPLOY_DIR/.env" || true
-          fi
+          # Stop and remove the old container if it exists
+          docker stop mellowhrbot || true
+          docker rm mellowhrbot || true
 
-      - name: Build & restart
-        working-directory: ${{ env.DEPLOY_DIR }}
-        run: |
-          docker compose build --pull
-          docker compose up -d --remove-orphans
-          docker image prune -f --filter "until=168h" || true
-
-      - name: Tail logs
-        working-directory: ${{ env.DEPLOY_DIR }}
-        run: docker compose logs --tail=80
+          # Run the new container from the 'latest' image
+          docker run -d \
+            --name mellowhrbot \
+            --restart always \
+            -e DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }} \
+            -e CLIENT_ID=${{ secrets.CLIENT_ID }} \
+            -e MONGO_URI=${{ secrets.MONGO_URI }} \
+            mellowhrbot-image:latest

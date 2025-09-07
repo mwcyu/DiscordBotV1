@@ -1,10 +1,10 @@
 # ---- build stage ----
-FROM node:22-alpine AS build
-WORKDIR /app
-ENV NODE_ENV=production
-COPY package*.json ./
-RUN npm ci
-COPY . .
+# FROM node:22-alpine AS build
+# WORKDIR /app
+# ENV NODE_ENV=production
+# COPY package*.json ./
+# RUN npm ci
+# COPY . .
 # If TypeScript, ensure your build step writes to /app/dist
 # RUN npm run build
 
