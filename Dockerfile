@@ -1,35 +1,30 @@
-# ---- build stage ----
-# FROM node:22-alpine AS build
-# WORKDIR /app
-# ENV NODE_ENV=production
-# COPY package*.json ./
-# RUN npm ci
-# COPY . .
-# If TypeScript, ensure your build step writes to /app/dist
+# ---- Build Stage ----
+# Installs all dependencies, including devDependencies needed for building
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+# If you have a build step (e.g., for TypeScript), uncomment the next line
 # RUN npm run build
 
-
-# Use the official Node.js 22 runtime as the base image
+# ---- Production Stage ----
+# This stage will only contain the final, runnable application
 FROM node:22-alpine
-
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json (if available) to leverage Docker cache
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci --only=production
-
-# Create a non-root user
-RUN useradd -m bot && chown -R bot:bot /app
+# Create a non-root user for security
+RUN addgroup -S bot && adduser -S bot -G bot
 USER bot
-COPY --from=build /app ./
 
-# Expose the port the app runs on
+# Copy only the necessary files from the 'build' stage
+COPY --from=build --chown=bot:bot /app/package*.json ./
+COPY --from=build --chown=bot:bot /app/node_modules ./node_modules
+COPY --from=build --chown=bot:bot /app/src ./src 
+# Or copy the 'dist' folder if you have a build step
+
+# Expose the port and set environment variables
 EXPOSE 8079
-
-# Define environment variables with default values
 ENV NODE_ENV=production
 ENV PORT=8079
 
