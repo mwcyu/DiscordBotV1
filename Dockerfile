@@ -1,32 +1,26 @@
 # ---- Build Stage ----
-# Installs all dependencies, including devDependencies needed for building
-FROM node:22-alpine AS build
+FROM node:22.6.0-alpine AS build   
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+
+# add a quick sanity print + robust ci flags
+RUN node -v && npm -v \
+    && npm ci --foreground-scripts --no-audit --no-fund
+
 COPY . .
-# If you have a build step (e.g., for TypeScript), uncomment the next line
-RUN npm run build
+# RUN npm run build  # (uncomment if you actually have a build step)
 
 # ---- Production Stage ----
-# This stage will only contain the final, runnable application
-FROM node:22-alpine
+FROM node:22.6.0-alpine
 WORKDIR /app
 
-# Create a non-root user for security
+# security: non-root
 RUN addgroup -S bot && adduser -S bot -G bot
 USER bot
 
-# Copy only the necessary files from the 'build' stage
 COPY --from=build --chown=bot:bot /app/package*.json ./
 COPY --from=build --chown=bot:bot /app/node_modules ./node_modules
-COPY --from=build --chown=bot:bot /app/src ./src 
-# Or copy the 'dist' folder if you have a build step
-
-# Expose the port and set environment variables
+COPY --from=build --chown=bot:bot /app/src ./src
 EXPOSE 8079
-ENV NODE_ENV=production
-ENV PORT=8079
-
-# Start the application
+ENV NODE_ENV=production PORT=8079
 CMD ["npm", "start"]
