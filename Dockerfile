@@ -1,10 +1,10 @@
 # ---- Build Stage ----
 # Installs all dependencies, including devDependencies needed for building
-# FROM node:22-alpine AS build
-# WORKDIR /app
-# COPY package*.json ./
-# RUN npm ci
-# COPY . .
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
 # If you have a build step (e.g., for TypeScript), uncomment the next line
 # RUN npm run build
 
