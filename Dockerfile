@@ -1,6 +1,6 @@
 # ---- Build Stage ----
 # Installs all dependencies, including devDependencies needed for building
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -10,7 +10,7 @@ RUN npm run build
 
 # ---- Production Stage ----
 # This stage will only contain the final, runnable application
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 
 # Create a non-root user for security
