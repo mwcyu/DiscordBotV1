@@ -2,7 +2,7 @@
 FROM node:22-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --only=production
 COPY . .
 RUN addgroup -S bot && adduser -S bot -G bot
 USER bot
