@@ -38,3 +38,8 @@ jobs:
             -e CLIENT_ID=${{ secrets.CLIENT_ID }} \
             -e MONGO_URI=${{ secrets.MONGO_URI }} \
             mellowhrbot-image:latest
+
+      - name: 5. Clean up old images
+        if: success()
+        run: |
+          docker image prune -a -f
