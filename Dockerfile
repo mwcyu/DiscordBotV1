@@ -22,4 +22,5 @@ USER bot
 
 EXPOSE 8079
 ENV NODE_ENV=production PORT=8079
+RUN npm install -y
 CMD ["npm", "start"]
