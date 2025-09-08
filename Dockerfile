@@ -1,10 +1,10 @@
 # ---- Production Stage ----
-FROM node:22-alpine
+FROM node:22
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --only=production
+RUN npm ci --omit=dev
 COPY . .
-RUN addgroup -S bot && adduser -S bot -G bot
+RUN addgroup --system --group bot && adduser --system --ingroup bot bot
 USER bot
 EXPOSE 8079
 ENV NODE_ENV=production PORT=8079
