@@ -1,9 +1,8 @@
 # ---- Production Stage ----
 FROM node:22
 WORKDIR /app
-COPY package*.json ./
-RUN npm cache clean --force && \
-    npm ci --omit=dev --verbose --no-audit --no-fund
+COPY package.json ./
+RUN npm install --only=production --no-package-lock
 COPY . .
 RUN addgroup --system --group bot && adduser --system --ingroup bot bot
 USER bot
